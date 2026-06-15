@@ -13,6 +13,7 @@ import (
 
 	"vpn-accounting/internal/database"
 	"vpn-accounting/internal/handlers"
+	"vpn-accounting/internal/middleware"
 	"vpn-accounting/internal/seed"
 	"vpn-accounting/internal/services"
 )
@@ -51,8 +52,12 @@ func main() {
 		Compress: true,
 	})
 
-	// API Routes
-	api := app.Group("/api/v1")
+	// Public API Routes
+	auth := handlers.NewAuthHandler(database.DB)
+	app.Post("/api/v1/auth/login", auth.Login)
+
+	// Protected API Routes
+	api := app.Group("/api/v1", middleware.Protected())
 	setupRoutes(api)
 
 	// پورت

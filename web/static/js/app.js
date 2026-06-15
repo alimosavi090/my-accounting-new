@@ -15,9 +15,17 @@ const App = {
     currentPage: null,
 
     init() {
+        // Auth check before anything
+        const token = localStorage.getItem('vpn_token');
+        if (!token && window.location.pathname !== '/login.html') {
+            window.location.href = '/login.html';
+            return;
+        }
+
         this.initTheme();
         this.initSidebar();
         this.initRouter();
+        this.initLogout();
         
         // Initialize Global Search if exists
         if (window.GlobalSearch) {
@@ -159,6 +167,25 @@ const App = {
                 </div>
             `;
         }
+    },
+
+    initLogout() {
+        const footerInfo = document.querySelector('.sidebar-footer-info');
+        if (footerInfo) {
+            const user = JSON.parse(localStorage.getItem('vpn_user') || '{}');
+            footerInfo.innerHTML = `
+                <button class="btn btn-ghost" style="padding: 4px; border:none;" onclick="App.logout()" title="خروج از حساب">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+                <span>${user.username || 'مدیر'}</span>
+            `;
+        }
+    },
+
+    logout() {
+        localStorage.removeItem('vpn_token');
+        localStorage.removeItem('vpn_user');
+        window.location.href = '/login.html';
     }
 };
 

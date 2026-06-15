@@ -38,6 +38,7 @@ func Initialize() {
 
 	// Auto-migrate تمام مدل‌ها
 	err = DB.AutoMigrate(
+		&models.User{},
 		&models.BankAccount{},
 		&models.ExpenseCategory{},
 		&models.Revenue{},

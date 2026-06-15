@@ -2,7 +2,17 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
+
+type User struct {
+	gorm.Model
+	Username     string     `gorm:"uniqueIndex;size:100;not null" json:"username"`
+	PasswordHash string     `gorm:"not null" json:"-"`
+	Role         string     `gorm:"size:50;default:'admin'" json:"role"`
+	LastLogin    *time.Time `json:"last_login"`
+}
 
 // BankAccount — حساب‌های بانکی
 type BankAccount struct {

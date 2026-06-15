@@ -8,6 +8,7 @@ import (
 
 	"vpn-accounting/internal/models"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -24,6 +25,20 @@ var serverProviders = []string{"Hetzner", "OVH", "DigitalOcean", "Linode", "Vult
 var iranProviders = []string{"ابرآروان", "افرانت", "آسیاتک", "شاتل", "پارس‌آنلاین"}
 
 func SeedDatabase(db *gorm.DB) {
+	// ── کاربر ادمین پیش‌فرض ──
+	var userCount int64
+	db.Model(&models.User{}).Count(&userCount)
+	if userCount == 0 {
+		hash, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+		adminUser := models.User{
+			Username:     "admin",
+			PasswordHash: string(hash),
+			Role:         "admin",
+		}
+		db.Create(&adminUser)
+		log.Println("🔑 کاربر پیش‌فرض با یوزرنیم admin و پسورد admin123 ایجاد شد")
+	}
+
 	var count int64
 	db.Model(&models.BankAccount{}).Count(&count)
 	if count > 0 {
@@ -34,6 +49,7 @@ func SeedDatabase(db *gorm.DB) {
 	log.Println("🌱 شروع Seed دیتابیس...")
 	now := time.Now()
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 
 	// ── حساب‌های بانکی ──
 	banks := []models.BankAccount{

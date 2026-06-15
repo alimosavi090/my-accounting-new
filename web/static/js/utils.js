@@ -63,11 +63,18 @@ const Utils = {
     // ارتباط با API
     async api(endpoint, options = {}) {
         const url = `/api/v1${endpoint}`;
+        
+        const token = localStorage.getItem('vpn_token');
+        
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json'
             }
         };
+
+        if (token) {
+            defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+        }
 
         if (options.body && typeof options.body !== 'string') {
             options.body = JSON.stringify(options.body);
@@ -75,6 +82,15 @@ const Utils = {
 
         try {
             const res = await fetch(url, { ...defaultOptions, ...options });
+            
+            if (res.status === 401) {
+                // توکن منقضی یا نامعتبر
+                localStorage.removeItem('vpn_token');
+                localStorage.removeItem('vpn_user');
+                window.location.href = '/login.html';
+                throw new Error('نشست شما پایان یافته است. لطفا مجددا وارد شوید.');
+            }
+
             if (!res.ok) {
                 let msg = 'خطای سرور';
                 try {
